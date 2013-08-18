@@ -1,0 +1,175 @@
+<html>
+<head>
+<title>WLM-geocoder</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+<link type="text/css" rel="stylesheet" href="plugins/jquery_ui/css/jquery.ui.base.css" media="screen" charset="utf-8">  
+<link type="text/css" rel="stylesheet" href="includes/progressbar.css" media="screen" charset="utf-8">  
+
+<script type="text/javascript" src="plugins/jquery/jquery-1.7.2.js"></script>
+<script type="text/javascript" src="plugins/jquery_ui/js/jquery-ui-1.8.min.js"></script>
+<script type="text/javascript" src="plugins/deference/js/deference.js"></script>
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+<script type="text/javascript">
+//Google Maps sometimes returns the geographical center of a town when it doesn't understand the address. +
+//To avoid including these coordinates, we're going to geocode the placenames first.
+
+var placenames = new Array("Placename1", "Placename2");  
+
+
+var falseCoords = new Array();
+var finished = 0;
+var finishedRows = 0;
+var numItems = 0;
+$(document).ready(function() {
+  numItems = $('.row').length + placenames.length;
+
+  $.serial(placenames, function(placename){
+    return $.when(getLatLong(placename).done(function(cords){
+         //Insert the coordinates into the HTML.
+        if (cords){ 
+        	falseCoords.push(cords);
+        }
+            
+      //If there weren't results for the address, do nothing.
+      if(!cords) return;
+            
+        }), $.wait(1500))
+        .always(function(){
+  		    updateProgress();
+  	   });
+  }).done( geocodeRows );
+  
+// When the retrieval of the cords fails...
+//   .fail(function(error){
+// console.log( " Error: " + error);
+//   });
+});
+
+function geocodeRows(){
+  var locations = $('.adres').map(function(){
+  	return $(this).text() + ", " + $(this).attr("name");
+
+  });
+
+  $.serial(locations, function(location){
+          return $.when(getLatLong(location).done(function(cords){
+           //Insert the coordinates into the HTML.
+          if (cords && ($.inArray(cords, falseCoords) == -1)){
+			      $('.row').eq(finishedRows).children('.lat').text(cords.lat);
+			      $('.row').eq(finishedRows).children('.lon').text(cords.lon);   
+          }
+          else if ($.inArray(cords, falseCoords) != -1){
+          	console.log("falseCoord!");
+          }
+              
+              //If there weren't results for the address, do nothing.
+        if(!cords) return;
+              
+          }), $.wait(1500))
+          .always(function(){
+          finishedRows++;
+  			 updateProgress();});
+       });
+  
+//When the retrieval of the cords fails...
+//   .fail(function(error){
+// console.log( " Error: " + error);
+//   });
+    
+}
+function updateProgress(){
+    finished++;
+    var percentage = finished* 100/numItems;
+    if (percentage == 100){
+        $('#progressbar').hide();
+    }
+    else{
+        $( "#progressbar" ).progressbar({ value: Math.round(percentage) });
+    }
+
+}
+
+function getLatLong(address) {
+    
+    //Create the Deferred object that handles the callbacks.
+
+    var D = $.Deferred();
+    var P = D.promise();
+    
+    //Create the geocoder instance.
+    var geocoder = new google.maps.Geocoder();
+    
+    //Send the geocode request for the given address.
+    geocoder.geocode( { 'address': address, 'region': 'nl' }, function(results, status) {
+        
+        //The deferred fails if this request failed.
+        if(status !== google.maps.GeocoderStatus.OK){
+           switch(status){
+               case google.maps.GeocoderStatus.ZERO_RESULTS: return D.resolve(null) && false;
+               default: return D.reject(status) && false;
+            }
+        }
+        
+        //Create the latlon object.
+        var latlon = {
+            lat: results[0].geometry.location.lat(),
+            lon: results[0].geometry.location.lng()
+        };
+        //Resolve the deferred with it.
+        D.resolve(latlon);
+        
+    });
+    
+   
+   //Return the promise object.
+    return P;
+}
+</script>
+</head>
+<body>
+<div id="progressbar" class="ui-progressbar"></div> 
+<br/>&lt;!-- --&gt;<br/>
+<br/><span class="row">
+	{{Tabelrij gemeentelijk monument
+	| object =Begraafplaats	
+  | bouwjaar ={{Sorteer|1800|19e eeuw}}	
+  | architect =	
+  | adres =<span class='adres'name='Baarlo, Steenwijkerland'>Baarlo tussen 2 en 4</span>
+	| postcode = 
+  |lat =<span class='lat' ></span>  
+  |lon =<span class='lon' ></span> 	
+  | objnr =IJSH094	
+  | gemcode =1708	
+  | rijksmonument =	
+  | aangewezen =	
+  | oorspr_fun = 
+	| commonscat=
+	| image=
+	}}
+</span>
+
+<br/>&lt;!-- --&gt;<br/>
+<br/><span class="row">
+	{{Tabelrij gemeentelijk monument
+	| object =Begraafplaats	
+  | bouwjaar ={{Sorteer|1800|19e eeuw}}	
+  | architect =	
+  | adres =<span class='adres'name='Baarlo, Steenwijkerland'>Baarlo tussen 2 en 4</span>
+	| postcode = 
+  |lat =<span class='lat' ></span>  
+  |lon =<span class='lon' ></span> 	
+  | objnr =IJSH094	
+  | gemcode =1708	
+  | rijksmonument =	
+  | aangewezen =	
+  | oorspr_fun = 
+	| commonscat=
+	| image=
+	}}</span>
+
+<br/>&lt;!-- --&gt;<br/>
+
+
+</body></html>
