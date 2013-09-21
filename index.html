@@ -12,7 +12,10 @@
 <script type="text/javascript" src="plugins/deference/js/deference.js"></script>
 <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
 <script type="text/javascript">
-var placenames = new Array(<?php echo  $data->placenames->get(); ?>);   // $a = array( 'Harlingen', 'Steenwijk' );  echo json_encode($a);  // ['Harlingen', 'Steenwijk']
+-//Google Maps sometimes returns the geographical center of a town when it doesn't understand the address. +
+-//To avoid including these coordinates, we're going to geocode the placenames first.
+-
+-var placenames = new Array("Placename1", "Placename2");   // $a = array( 'Harlingen', 'Steenwijk' );  echo json_encode($a);  // ['Harlingen', 'Steenwijk']
 var falseCoords = new Array();
 var finished = 0;
 var finishedRows = 0;
