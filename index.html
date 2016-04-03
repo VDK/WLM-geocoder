@@ -46,6 +46,7 @@ $(document).ready(function() {
 //   });
 });
 function checkFalseCoors(cords){
+	//Clear out Google Maps inacurate coordinates.
   for(index = 0; index < falseCoords.length; index++){
     if(falseCoords[index].lat == cords.lat &&  falseCoords[index].lon == cords.lon)
       return false;
@@ -106,6 +107,7 @@ function getLatLong(address) {
     var geocoder = new google.maps.Geocoder();
     
     //Send the geocode request for the given address.
+    //Region: NL means it assumes the address is in the Netherlands, change as needed
     geocoder.geocode( { 'address': address, 'region': 'nl' }, function(results, status) {
         
         //The deferred fails if this request failed.
@@ -121,6 +123,9 @@ function getLatLong(address) {
             lat: results[0].geometry.location.lat(),
             lon: results[0].geometry.location.lng()
         };
+        
+        
+      //trim off overabundance of insignificant numbers.   
     latlon.lon = latlon.lon.toString().substr(0,9);
     latlon.lat = latlon.lat.toString().substr(0,10);
     
