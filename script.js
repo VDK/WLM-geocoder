@@ -1,5 +1,7 @@
 $(document).ready(function() {
-  numItems = $('.row').length + placenames.length;
+  var finished = 0;
+  var finishedRows = 0;
+  var numItems = $('.row').length + placenames.length;
 
   $.serial(placenames, function(placename){
     return $.when(getLatLong(placename).done(function(cords){
